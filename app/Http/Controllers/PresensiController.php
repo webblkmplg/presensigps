@@ -12,13 +12,58 @@ use Illuminate\Support\Facades\Storage;
 
 class PresensiController extends Controller
 {
+      public function gethari()
+    {
+        $hari = date("D");
+
+        switch ($hari) {
+            case 'Sun':
+                $hari_ini = "Minggu";
+                break;
+
+            case 'Mon':
+                $hari_ini = "Senin";
+                break;
+
+            case 'Tue':
+                $hari_ini = "Selasa";
+                break;
+
+            case 'Wed':
+                $hari_ini = "Rabu";
+                break;
+
+            case 'Thu':
+                $hari_ini = "Kamis";
+                break;
+
+            case 'Fri':
+                $hari_ini = "Jumat";
+                break;
+
+            case 'Sat':
+                $hari_ini = "Sabtu";
+                break;
+
+            default:
+                $hari_ini = "Tidak di Ketahui";
+                break;
+        }
+        return $hari_ini;
+    }
+
     public function create()
     {
-        $hariini = date("Y-m-d");
+        // $hariini = date("Y-m-d");
+        echo $hariini = date("Y-m-d");
+        $namahari = $this->gethari();
         $nip = Auth::guard('pegawai')->user()->nip;
         $cek = DB::table('presensi')->where('tgl_presensi', $hariini)->where('nip', $nip)->count();
         $lok_kantor = DB::table('konfigurasi_lokasi')->where('id', 1)->first();
-        return view('presensi.create', compact('cek', 'lok_kantor'));
+        $jamkerja = DB::table('konfigurasi_jamkerja')
+            ->join('jam_kerja', 'konfigurasi_jamkerja.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
+            ->where('nip', $nip)->where('hari', $namahari)->first();
+        return view('presensi.create', compact('cek', 'lok_kantor', 'jamkerja'));
     }
 
     public function store(Request $request)
@@ -39,6 +84,10 @@ class PresensiController extends Controller
 
         $jarak = $this->distance($latitudekantor, $longitudekantor, $latitudeuser, $longitudeuser);
         $radius = round($jarak["meters"]);
+        $namahari = $this->gethari();
+        $jamkerja = DB::table('konfigurasi_jamkerja')
+            ->join('jam_kerja', 'konfigurasi_jamkerja.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
+            ->where('nip', $nip)->where('hari', $namahari)->first();
 
         $cek = DB::table('presensi')->where('tgl_presensi', $tgl_presensi)->where('nip', $nip)->count();
 
@@ -73,20 +122,25 @@ class PresensiController extends Controller
                     echo "error|Maaf Gagal Absen, Hubungi IT|out";
                 }
             } else {
-                $data = [
-                    'nip' => $nip,
-                    'tgl_presensi' => $tgl_presensi,
-                    'jam_in' => $jam,
-                    'foto_in' => $fileName,
-                    'lokasi_in' => $lokasi
-                ];
-
-                $simpan = DB::table('presensi')->insert($data);
-                if ($simpan) {
-                    echo "success|Terimakasih, Selamat Bekerja|in";
-                    Storage::put($file, $image_base64);
+                if ($jam < $jamkerja->awal_jam_masuk) {
+                    echo "error|Maaf Presensi dimulai pukul 07:00|in";
                 } else {
-                    echo "error|Maaf Gagal Absen, Hubungi IT|in";
+                    $data = [
+                        'nip' => $nip,
+                        'tgl_presensi' => $tgl_presensi,
+                        'jam_in' => $jam,
+                        'foto_in' => $fileName,
+                        'lokasi_in' => $lokasi,
+                        'kode_jam_kerja' => $jamkerja->kode_jam_kerja
+                    ];
+
+                    $simpan = DB::table('presensi')->insert($data);
+                    if ($simpan) {
+                        echo "success|Terimakasih, Selamat Bekerja|in";
+                        Storage::put($file, $image_base64);
+                    } else {
+                        echo "error|Maaf Gagal Absen, Hubungi IT|in";
+                    }
                 }
             }
         }
@@ -178,7 +232,7 @@ class PresensiController extends Controller
     public function cuti()
     {
         $nip = Auth::guard('pegawai')->user()->nip;
-        $datacuti = DB::table('pengajuan_cuti')->where('nip', $nip)->get();
+        $datacuti = DB::table('pengajuan_cuti')->where('nip', $nip)->orderBy('tgl_cuti', 'desc')->get();
         return view('presensi.cuti', compact('datacuti'));
     }
 
@@ -205,9 +259,9 @@ class PresensiController extends Controller
         $simpan = DB::table('pengajuan_cuti')->insert($data);
 
         if ($simpan) {
-            return redirect('/presensi/cuti')->with(['success' => 'Cuti Berhasil Diajukan']);
+            return redirect('/presensi/cuti')->with(['success' => 'Informasi Berhasil Dikirim']);
         } else {
-            return redirect('/presensi/cuti')->with(['error' => 'Cuti Gagal Diajukan']);
+            return redirect('/presensi/cuti')->with(['error' => 'Informasi Gagal Dikirim']);
         }
     }
 
@@ -224,6 +278,7 @@ class PresensiController extends Controller
             ->join('pegawai', 'presensi.nip', '=', 'pegawai.nip')
             ->join('departemen', 'pegawai.kode_dept', '=', 'departemen.kode_dept')
             ->where('tgl_presensi', $tanggal)
+            ->orderBy('jam_in')
             ->get();
 
         return view('presensi.getpresensi', compact('presensi'));
@@ -261,6 +316,15 @@ class PresensiController extends Controller
             ->whereRaw('YEAR(tgl_presensi)="' . $tahun . '"')
             ->orderBy('tgl_presensi')
             ->get();
+            
+            if (isset($_POST['exportexcel'])) {
+            $time = date("d-M-Y H:i:s");
+
+            header("Content-type : application/vnd-ms-excel");
+            header("Content-Disposition: attachment; filename=Laporan Presensi Pegawai $time.xls");
+            return view('presensi.cetaklaporanexcel', compact('bulan', 'tahun', 'namabulan', 'pegawai', 'presensi'));
+        }
+        
         return view('presensi.cetaklaporan', compact('bulan', 'tahun', 'namabulan', 'pegawai', 'presensi'));
     }
 
@@ -315,6 +379,13 @@ class PresensiController extends Controller
             ->groupByRaw('presensi.nip,nama_lengkap')
             ->get();
 
+        if (isset($_POST['exportexcel'])) {
+        $time = date("d-M-Y H:i:s");
+
+        header("Content-type : application/vnd-ms-excel");
+        header("Content-Disposition: attachment; filename=Rekap Presensi Pegawai $time.xls");
+        }
+
         return view('presensi.cetakrekap', compact('bulan', 'tahun', 'namabulan', 'rekap'));
     }
 
@@ -337,7 +408,7 @@ class PresensiController extends Controller
             $query->where('status_approved', $request->status_approved);
         }
         $query->orderBy('tgl_cuti', 'desc');
-        $sakitcuti = $query->paginate(3);
+        $sakitcuti = $query->paginate(10);
         $sakitcuti->appends($request->all());
         return view('presensi.sakitcuti', compact('sakitcuti'));
     }

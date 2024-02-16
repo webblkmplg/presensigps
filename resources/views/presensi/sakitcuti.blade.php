@@ -9,7 +9,7 @@
                         Data
                     </div>
                     <h2 class="page-title">
-                        Cuti dan Sakit
+                        Cuti, Sakit dan Dinas Luar
                     </h2>
                 </div>
             </div>
@@ -160,12 +160,20 @@
                         <tbody>
                             @foreach ($sakitcuti as $d)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $loop->iteration + $sakitcuti->firstitem() - 1 }}</td>
                                     <td>{{ date('d-m-Y', strtotime($d->tgl_cuti)) }}</td>
                                     <td>{{ $d->nip }}</td>
                                     <td>{{ $d->nama_lengkap }}</td>
                                     <td>{{ $d->jabatan }}</td>
-                                    <td>{{ $d->status == 'i' ? 'Izin' : 'Sakit' }}</td>
+                                    <td>
+                                         @if ($d->status == 's')
+                                            <span>Sakit</span>
+                                        @elseif ($d->status == 'c')
+                                            <span>Cuti</span>
+                                        @elseif ($d->status == 'd')
+                                            <span>Dinas Luar</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $d->keterangan }}</td>
                                     <td>
                                         @if ($d->status_approved == 1)

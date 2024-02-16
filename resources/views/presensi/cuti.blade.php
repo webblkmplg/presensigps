@@ -7,7 +7,7 @@
                 <ion-icon name="chevron-back-outline"></ion-icon>
             </a>
         </div>
-        <div class="pageTitle">Data Cuti</div>
+        <div class="pageTitle">Data Cuti/Sakit/Dinas Luar</div>
         <div class="right"></div>
     </div>
     <!------- * App Header -------->
@@ -41,14 +41,22 @@
                             <div class="in">
                                 <div>
                                     <b>{{ date('d-m-Y', strtotime($d->tgl_cuti)) }}
-                                        ({{ $d->status == 's' ? 'Sakit' : 'Cuti' }})
+                                        {{-- ({{ $d->status == 's' ? 'Sakit' : 'Cuti' }}) --}}
+                                        @if ($d->status == 's')
+                                            <span>(Sakit)</span>
+                                        @elseif ($d->status == 'c')
+                                            <span>(Cuti)</span>
+                                        @elseif ($d->status == 'd')
+                                            <span>(Dinas Luar)</span>
+                                        @endif
+
                                     </b><br>
                                     <small class="text-muted">{{ $d->keterangan }}</small>
                                 </div>
                                 @if ($d->status_approved == 0)
                                     <span class="badge bg-warning">Menunggu</span>
                                 @elseif ($d->status_approved == 1)
-                                    <span class="badge bg-success">Diterima</span>
+                                    <span class="badge bg-success">Valid</span>
                                 @elseif ($d->status_approved == 2)
                                     <span class="badge bg-danger">Ditolak</span>
                                 @endif

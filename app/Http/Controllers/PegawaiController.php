@@ -67,8 +67,12 @@ class PegawaiController extends Controller
                 return Redirect::back()->with(['success' => 'Data Berhasil Disimpan']);
             }
         } catch (\exception $e) {
-            // dd($e);
-            return Redirect::back()->with(['warning' => 'Data Gagal Disimpan']);
+            if ($e->getCode() == 23000) {
+                $message = "Data dengan NIP " . $nip . " Sudah Ada";
+            } else {
+                $message = "Hubungi IT";
+            }
+            return Redirect::back()->with(['warning' => 'Data Gagal Disimpan. ' . $message]);
         }
     }
 

@@ -16,10 +16,11 @@ class DashboardController extends Controller
         $nip = Auth::guard('pegawai')->user()->nip;
         $presensihariini = DB::table('presensi')->where('nip', $nip)->where('tgl_presensi', $hariini)->first();
         $historibulanini = DB::table('presensi')
+            ->leftjoin('jam_kerja','presensi.kode_jam_kerja','=','jam_kerja.kode_jam_kerja')
             ->where('nip', $nip)
             ->whereRaw('MONTH(tgl_presensi)="' . $bulanini . '"')
             ->whereRaw('YEAR(tgl_presensi)="' . $tahunini . '"')
-            ->orderBy('tgl_presensi')
+            ->orderBy('tgl_presensi','desc')
             ->get();
 
         $rekappresensi = DB::table('presensi')
@@ -38,7 +39,7 @@ class DashboardController extends Controller
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
         $rekapcuti = DB::table('pengajuan_cuti')
-            ->selectRaw('SUM(IF(status="c",1,0)) as jmlcuti,SUM(IF(status="s",1,0)) as jmlsakit')
+            ->selectRaw('SUM(IF(status="c",1,0)) as jmlcuti,SUM(IF(status="s",1,0)) as jmlsakit,SUM(IF(status="d",1,0)) as jmldl')
             ->where('nip', $nip)
             ->whereRaw('MONTH(tgl_cuti)="' . $bulanini . '"')
             ->whereRaw('YEAR(tgl_cuti)="' . $tahunini . '"')

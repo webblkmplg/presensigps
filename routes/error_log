@@ -1,0 +1,4 @@
+[23-Jun-2023 05:57:56 UTC] PHP Fatal error:  Uncaught Error: Class 'Illuminate\Support\Facades\Route' not found in /home/btklpp/public_html/presensi/routes/web.php:24
+Stack trace:
+#0 {main}
+  thrown in /home/btklpp/public_html/presensi/routes/web.php on line 24

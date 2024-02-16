@@ -17,7 +17,7 @@
                 <ion-icon name="chevron-back-outline"></ion-icon>
             </a>
         </div>
-        <div class="pageTitle">Pengajuan Cuti</div>
+        <div class="pageTitle">Form Cuti/ Sakit/ Dinas Luar</div>
         <div class="right"></div>
     </div>
     <!------- * App Header -------->
@@ -33,14 +33,15 @@
                 </div>
                 <div class="form-group">
                     <select name="status" id="status" class="form-control">
-                        <option value="">Cuti/Sakit</option>
+                        <option value="">Cuti/Sakit/DL</option>
                         <option value="c">Cuti Tahunan</option>
                         <option value="s">Sakit</option>
+                        <option value="d">Dinas Luar</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <textarea name="keterangan" id="keterangan" class="form-control" cols="30" rows="5"
-                        placeholder="Alasan Cuti"></textarea>
+                        placeholder="Alasan/Keterangan"></textarea>
                 </div>
                 <div class="form-group">
                     <button class="btn btn-primary w-100">Kirim</button>
@@ -98,14 +99,14 @@
                 } else if (status == "") {
                     Swal.fire({
                         title: 'Oops!',
-                        text: 'Status Cuti/Sakit Harus Diisi',
+                        text: 'Status Cuti/Sakit/DL Harus Diisi',
                         icon: 'warning'
                     });
                     return false;
                 } else if (keterangan == "") {
                     Swal.fire({
                         title: 'Oops!',
-                        text: 'Alasan Cuti Harus Diisi',
+                        text: 'Alasan/Keterangan Harus Diisi',
                         icon: 'warning'
                     });
                     return false;

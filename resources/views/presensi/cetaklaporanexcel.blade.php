@@ -25,34 +25,34 @@
         }
 
         .tabeldatapegawai {
-            margin-top: 5px;
+            margin-top: 20px;
         }
 
         .tabeldatapegawai td {
-            padding: 0px;
+            padding: 1px;
         }
 
         .tabelpresensi {
             width: 100%;
-            margin-top: 10px;
+            margin-top: 20px;
             border-collapse: collapse;
         }
 
         .tabelpresensi tr th {
             border: 1px solid #131212;
-            padding: 3px;
+            padding: 8px;
             background-color: #dbdbdb;
         }
 
         .tabelpresensi tr td {
             border: 1px solid #131212;
-            padding: 3px;
+            padding: 5px;
             font-size: 12px;
         }
 
         .foto {
-            width: 30px;
-            height: 20px;
+            width: 40px;
+            height: 30px;
         }
     </style>
 </head>
@@ -97,7 +97,14 @@
             </tr>
         </table>
         <table class="tabeldatapegawai">
-         
+            {{-- <tr>
+                <td rowspan="6">
+                    @php
+                        $path = Storage::url('uploads/pegawai/' . $pegawai->foto);
+                    @endphp
+                    <img src="{{ url($path) }}" alt="" width="110" height="150">
+                </td>
+            </tr> --}}
             <tr>
                 <td>NIP</td>
                 <td>:</td>
@@ -118,44 +125,31 @@
                 <td>:</td>
                 <td>{{ $pegawai->nama_dept }}</td>
             </tr>
-            <!--<tr>-->
-            <!--    <td>No Handphone</td>-->
-            <!--    <td>:</td>-->
-            <!--    <td>{{ $pegawai->no_hp }}</td>-->
-            <!--</tr>-->
+            {{-- <tr>
+                <td>No Handphone</td>
+                <td>:</td>
+                <td>{{ $pegawai->no_hp }}</td>
+            </tr> --}}
         </table>
         <table class="tabelpresensi">
             <tr>
                 <th>No.</th>
                 <th>Tanggal</th>
                 <th>Jam Masuk</th>
-                <th>Foto Masuk</th>
                 <th>Jam Pulang</th>
-                <th>Foto Pulang</th>
                 <th>Keterangan</th>
                 <th>Jml Jam</th>
             </tr>
             <tr>
                 @foreach ($presensi as $d)
                     @php
-                        $path_in = Storage::url('uploads/absensi/' . $d->foto_in);
-                        $path_out = Storage::url('uploads/absensi/' . $d->foto_out);
                         $jamterlambat = selisih('07:30:00', $d->jam_in);
                     @endphp
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ date('d-m-Y', strtotime($d->tgl_presensi)) }}</td>
                 <td>{{ $d->jam_in }}</td>
-                <td><img src="{{ url($path_in) }}" alt="" class="foto"></td>
                 <td>{{ $d->jam_out != null ? $d->jam_out : 'PSW4' }}</td>
-                <td>
-                    @if ($d->jam_out != null)
-                        <img src="{{ url($path_out) }}" alt="" class="foto">
-                </td>
-            @else
-                <img src="{{ asset('assets/img/noimg.png') }}" alt="" class="foto">
-                @endif
-
                 <td>
                     @if ($d->jam_in > '07:30')
                         Terlambat {{ $jamterlambat }}

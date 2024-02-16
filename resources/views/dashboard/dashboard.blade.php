@@ -14,7 +14,7 @@
 
             </div>
             <div id="user-info">
-                <h2 id="user-name">{{ Auth::guard('pegawai')->user()->nama_lengkap }}</h2>
+                <h3 id="user-name">{{ Auth::guard('pegawai')->user()->nama_lengkap }}</h3>
                 <span id="user-role">{{ Auth::guard('pegawai')->user()->jabatan }}</span>
             </div>
         </div>
@@ -41,7 +41,7 @@
                             </a>
                         </div>
                         <div class="menu-name">
-                            <span class="text-center">Cuti</span>
+                            <span class="text-center">Cuti/DL</span>
                         </div>
                     </div>
                     <div class="item-menu text-center">
@@ -56,12 +56,12 @@
                     </div>
                     <div class="item-menu text-center">
                         <div class="menu-icon">
-                            <a href="" class="orange" style="font-size: 40px;">
-                                <ion-icon name="location"></ion-icon>
+                            <a href="/proseslogout" class="orange" style="font-size: 40px;">
+                                <ion-icon name="log-out-outline"></ion-icon>
                             </a>
                         </div>
                         <div class="menu-name">
-                            Lokasi
+                            Log Out
                         </div>
                     </div>
                 </div>
@@ -72,6 +72,7 @@
         <div class="todaypresence">
             <div class="row">
                 <div class="col-6">
+                    <a href="/presensi/create" class="item">
                     <div class="card gradasigreen">
                         <div class="card-body">
                             <div class="presencecontent">
@@ -92,8 +93,10 @@
                             </div>
                         </div>
                     </div>
+                    </a>
                 </div>
                 <div class="col-6">
+                    <a href="/presensi/create" class="item">
                     <div class="card gradasired">
                         <div class="card-body">
                             <div class="presencecontent">
@@ -114,6 +117,7 @@
                             </div>
                         </div>
                     </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -159,11 +163,11 @@
                     <div class="card">
                         <div class="card-body text-center" style="padding: 16px 12px !important; line-height: 0.8rem">
                             <span class="badge bg-danger"
-                                style="position: absolute; top: 3px; right: 10px; font-size: 0.6rem; z-index:999">{{ $rekappresensi->jmlterlambat }}</span>
-                            <ion-icon name="alarm-outline" style="font-size: 1.6 rem;" class="text-danger">
+                                style="position: absolute; top: 3px; right: 10px; font-size: 0.6rem; z-index:999">{{ $rekapcuti->jmldl }}</span>
+                            <ion-icon name="earth-outline" style="font-size: 1.6 rem;" class="text-danger">
                             </ion-icon>
                             <br>
-                            <span style="font-size: 0.8rem; font-weight: 500">Telat</span>
+                            <span style="font-size: 0.8rem; font-weight: 500">DL</span>
                         </div>
                     </div>
                 </div>
@@ -177,36 +181,71 @@
                             Bulan Ini
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#profile" role="tab">
-                            Leaderboard
-                        </a>
-                    </li>
+                    <!--<li class="nav-item">-->
+                    <!--    <a class="nav-link" data-toggle="tab" href="#profile" role="tab">-->
+                    <!--        Leaderboard-->
+                    <!--    </a>-->
+                    <!--</li>-->
                 </ul>
             </div>
             <div class="tab-content mt-2" style="margin-bottom:100px;">
                 <div class="tab-pane fade show active" id="home" role="tabpanel">
-                    <ul class="listview image-listview">
-                        @foreach ($historibulanini as $d)
-                            @php
-                                $path = Storage::url('uploads/absensi/' . $d->foto_in);
-                            @endphp
-                            <li>
-                                <div class="item">
-                                    <div class="icon-box bg-primary">
+                    <style>
+                        .historicontent{
+                            display: flex;
+                        }
+
+                        .datapresensi{
+                            margin-left: 10px;
+                        }
+
+                        .keterangan{
+                            margin-top: 0px;
+                        }
+                    </style>
+                    @foreach ($historibulanini as $d)
+                         @php
+                            $path = Storage::url('uploads/absensi/' . $d->foto_in);
+                        @endphp
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="historicontent">
+                                    <div class="iconpresensi">
+                                        {{-- <ion-icon name="finger-print-outline" style="font-size: 48px;" class="text-success"></ion-icon> --}}
                                         <img src="{{ url($path) }}" alt="" class="imaged w48 rounded">
                                     </div>
-                                    <div class="in">
-                                        <div>{{ date('d-m-Y', strtotime($d->tgl_presensi)) }}</div>
-                                        <span class="badge badge-success">{{ $d->jam_in }}</span>
-                                        <span
-                                            class="badge badge-danger">{{ $presensihariini != null && $d->jam_out != null ? $d->jam_out : 'Belum Absen' }}</span>
+                                    <div class="datapresensi">
+                                        <h3 style="line-height: 3px">{{ $d->nama_jam_kerja}}</h3>
+                                        <h4 style="margin: 0px !important">{{ date("d-m-Y",strtotime($d->tgl_presensi))}}</h4>
+                                        <span>
+                                            {!! $d->jam_in != null ? date("H:i",strtotime($d->jam_in)) : '<span class="text-danger">Belum Scan Pulang</span>' !!}
+                                            {!! $d->jam_out != null ? "-". date("H:i",strtotime($d->jam_out)) : '<span class="text-danger">- Belum Scan Pulang</span>' !!}
+                                        </span>
+                                        <div id="keterangan" class="mt-0">
+                                            @php
+                                            //jam ketika absen
+                                            $jam_in = date("H:i",strtotime($d->jam_in));
+
+                                            //jam jadwal masuk
+                                            $jam_masuk = date("H:i",strtotime($d->jam_masuk));
+
+                                            $jadwal_jam_masuk = $d->tgl_presensi." ".$jam_masuk;
+                                            $jam_presensi = $d->tgl_presensi." ".$jam_in;
+                                            @endphp
+                                            @if ($jam_in > $jam_masuk)
+                                            @php
+                                                $jmlterlambat = hitungjamterlambat($jadwal_jam_masuk,$jam_presensi);
+                                            @endphp
+                                            <span class="danger">Terlambat {{ $jmlterlambat }}</span>
+                                            @else
+                                            <span style="color:green">Tepat Waktu</span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
-                            </li>
-                        @endforeach
-
-                    </ul>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
                 <div class="tab-pane fade" id="profile" role="tabpanel">
                     <ul class="listview image-listview">
