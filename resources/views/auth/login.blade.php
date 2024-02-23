@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>E-Presensi BTKLPP Kelas I Palembang</title>
+    <title>E-Presensi Balai Labkesmas Palembang</title>
     <meta name="description" content="Presensi Online Pegawai">
     <meta name="keywords" content="bootstrap 4, mobile template, cordova, phonegap, mobile, html" />
     <link rel="icon" type="image/png" href=" {{ asset('assets/img/icon1.png') }} " sizes="32x32">
