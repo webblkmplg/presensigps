@@ -20,7 +20,7 @@
     <link rel="manifest" href="__manifest.json">
 </head>
 
-<body style="background-color:#e9ecef;">
+<body style="background-color:#c0cbd5;">
 
     <!-- loader -->
     <div id="loader">

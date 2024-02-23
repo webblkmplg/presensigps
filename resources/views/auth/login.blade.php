@@ -29,12 +29,12 @@
     <!-- App Capsule -->
     <div id="appCapsule" class="pt-0">
 
-        <div class="login-form mt-1">
+        <div class="login-form mt-5">
             <div class="section">
-                <img src="{{ asset('assets/img/login/icon1.png') }}" alt="image" class="form-image">
+                <img src="{{ asset('assets/img/login/icon2.PNG') }}" alt="image" class="form-image" style="width:240px !important;height:68px !important;">
             </div>
             <div class="section mt-1">
-                <h1>E-Presensi BTKLPP Kelas I Palembang</h1>
+                <h1>Sistem Informasi Kehadiran Pegawai</h1>
                 <h4>Silahkan Log In</h4>
             </div>
             <div class="section mt-1 mb-5">
@@ -67,9 +67,9 @@
                         </div>
                     </div>
 
-                    <div class="form-links mt-2">
+                    {{-- <div class="form-links mt-2">
                         <div><a href="page-forgot-password.html" class="text-muted">Forgot Password?</a></div>
-                    </div>
+                    </div> --}}
 
                     <div class="form-button-group">
                         <button type="submit" class="btn btn-success btn-block btn-lg">Log in</button>

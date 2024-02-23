@@ -59,6 +59,9 @@
     <div class="row">
         <div class="col" id="showhistori"></div>
     </div>
+    <div class="row">
+        <div class="col">&nbsp; <br> &nbsp; <br></div>
+    </div>
 @endsection
 
 @push('myscript')

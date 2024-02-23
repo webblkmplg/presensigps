@@ -427,7 +427,7 @@ button:focus {
   align-items: center;
   justify-content: center;
   border-radius: 200px;
-  background: #1e74fd;
+  background: #11796e;
 }
 
 .appBottomMenu .item .action-button.large {
@@ -2226,8 +2226,8 @@ a.badge-dark {
 }
 
 .btn-primary {
-  background: #1e74fd !important;
-  border-color: #1e74fd !important;
+  background: #11796e !important;
+  border-color: #11796e !important;
   color: #ffffff !important;
 }
 
@@ -2235,14 +2235,14 @@ a.badge-dark {
 .btn-primary:focus,
 .btn-primary:active,
 .btn-primary.active {
-  background: #0564fd !important;
-  border-color: #0564fd !important;
+  background: #3a9e94 !important;
+  border-color: #3a9e94 !important;
 }
 
 .btn-primary.disabled,
 .btn-primary:disabled {
-  background: #1e74fd;
-  border-color: #1e74fd;
+  background: #11796e;
+  border-color: #11796e;
   opacity: 0.5;
 }
 
@@ -3635,7 +3635,7 @@ a.badge-dark {
 }
 
 .bg-primary {
-  background: #1e74fd !important;
+  background: #11796e !important;
   color: #fff;
 }
 
@@ -5464,7 +5464,7 @@ textarea,
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1e74fd;
+  background: #11796e;
   border-radius: 100%;
   color: #fff !important;
 }
@@ -5478,7 +5478,7 @@ textarea,
 
 .fab-button .fab:hover,
 .fab-button .fab:active {
-  background: #1e74fd;
+  background: #3a9e94;
 }
 
 .fab-button.text .fab {
@@ -7996,7 +7996,7 @@ body.dark-mode-active .cart-item .cart-item-footer {
 
 #user-section {
   height: 180px;
-  background-color: #092c9f;
+  background-color: #11796e;
   padding: 20px;
 }
 
@@ -8007,13 +8007,14 @@ body.dark-mode-active .cart-item .cart-item-footer {
 
 #user-info {
   margin-left: 30px !important;
-  line-height: 2px;
+  line-height: 14px;
 }
 #user-name {
   color: white;
 }
 #user-role {
   color: white;
+  font-size: 13px;
 }
 
 #menu-section {
@@ -8032,7 +8033,7 @@ body.dark-mode-active .cart-item .cart-item-footer {
   position: absolute;
   top: 150px;
   width: 100%;
-  background-color: #e9ecef;
+  background-color: #c0cbd5;
   border-radius: 10px 10px 0px 0px;
 }
 
@@ -8051,7 +8052,7 @@ body.dark-mode-active .cart-item .cart-item-footer {
   background-image: linear-gradient(
     to bottom right,
     rgba(21, 189, 74, 1),
-    rgba(21, 189, 74, 0.8)
+    rgba(53, 76, 145, 0.8)
   );
 }
 
@@ -8060,7 +8061,7 @@ body.dark-mode-active .cart-item .cart-item-footer {
   background-image: linear-gradient(
     to bottom right,
     rgba(184, 13, 45, 1),
-    rgba(184, 13, 45, 0.8)
+    rgba(142, 31, 161, 0.8)
   );
 }
 
