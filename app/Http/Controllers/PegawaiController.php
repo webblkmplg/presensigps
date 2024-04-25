@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Crypt;
 use PhpParser\Node\Stmt\TryCatch;
 
 class PegawaiController extends Controller
@@ -91,7 +92,7 @@ class PegawaiController extends Controller
         $jabatan = $request->jabatan;
         $no_hp = $request->no_hp;
         $kode_dept = $request->kode_dept;
-        $password = Hash::make('12345');
+        $password = Hash::make('123456');
         $old_foto = $request->foto;
         if ($request->hasFile('foto')) {
             $foto = $nip . "." . $request->file('foto')->getClientOriginalExtension();
@@ -132,5 +133,19 @@ class PegawaiController extends Controller
         } else {
             return Redirect::back()->with(['warning' => 'Data Gagal Dihapus']);
         }
+    }
+
+    public function resetpassword($nip){
+        $nip = Crypt::decrypt($nip);
+        $password = Hash::make('123456');
+        $reset = DB::table('pegawai')->where('nip',$nip)->update([
+            'password' => $password
+    ]);
+
+    if($reset){
+        return Redirect::back()->with(['success' => 'Password Berhasil di Reset']);
+    } else {
+        return Redirect::back()->with(['warning' => 'Password Gagal Direset']);
+    }
     }
 }

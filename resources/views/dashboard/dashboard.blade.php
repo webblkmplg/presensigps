@@ -139,7 +139,7 @@
                     <div class="card">
                         <div class="card-body text-center" style="padding: 16px 12px !important; line-height: 0.8rem">
                             <span class="badge bg-danger"
-                                style="position: absolute; top: 3px; right: 10px; font-size: 0.6rem; z-index:999">{{ $rekapcuti->jmlcuti }}</span>
+                                style="position: absolute; top: 3px; right: 10px; font-size: 0.6rem; z-index:999">{{ $rekappresensi->jmlcuti }}</span>
                             <ion-icon name="newspaper-outline" style="font-size: 1.6 rem;" class="text-success">
                             </ion-icon>
                             <br>
@@ -151,7 +151,7 @@
                     <div class="card">
                         <div class="card-body text-center" style="padding: 16px 12px !important; line-height: 0.8rem">
                             <span class="badge bg-danger"
-                                style="position: absolute; top: 3px; right: 10px; font-size: 0.6rem; z-index:999">{{ $rekapcuti->jmlsakit }}</span>
+                                style="position: absolute; top: 3px; right: 10px; font-size: 0.6rem; z-index:999">{{ $rekappresensi->jmlsakit }}</span>
                             <ion-icon name="medkit-outline" style="font-size: 1.6 rem;" class="text-warning">
                             </ion-icon>
                             <br>
@@ -163,7 +163,7 @@
                     <div class="card">
                         <div class="card-body text-center" style="padding: 16px 12px !important; line-height: 0.8rem">
                             <span class="badge bg-danger"
-                                style="position: absolute; top: 3px; right: 10px; font-size: 0.6rem; z-index:999">{{ $rekapcuti->jmldl }}</span>
+                                style="position: absolute; top: 3px; right: 10px; font-size: 0.6rem; z-index:999">{{ $rekappresensi->jmldl }}</span>
                             <ion-icon name="earth-outline" style="font-size: 1.6 rem;" class="text-danger">
                             </ion-icon>
                             <br>
@@ -193,26 +193,29 @@
                     <style>
                         .historicontent{
                             display: flex;
+                            margin-top: 10px;
                         }
 
                         .datapresensi{
                             margin-left: 10px;
                         }
 
-                        .keterangan{
+
+                        /* .keterangan{
                             margin-top: 0px;
-                        }
+                        } */
                     </style>
                     @foreach ($historibulanini as $d)
-                         @php
+                        {{--  @php
                             $path = Storage::url('uploads/absensi/' . $d->foto_in);
-                        @endphp
-                        <div class="card">
+                        @endphp --}}
+                        @if ($d->status=="h")
+                        <div class="card mb-1" style="border: 1px solid rgb(135, 135, 207)">
                             <div class="card-body">
                                 <div class="historicontent">
                                     <div class="iconpresensi">
-                                        {{-- <ion-icon name="finger-print-outline" style="font-size: 48px;" class="text-success"></ion-icon> --}}
-                                        <img src="{{ url($path) }}" alt="" class="imaged w48 rounded">
+                                        <ion-icon name="finger-print-outline" style="font-size: 48px;" class="text-success"></ion-icon>
+                                        {{-- <img src="{{ url($path) }}" alt="" class="imaged w48 rounded"> --}}
                                     </div>
                                     <div class="datapresensi">
                                         <h3 style="line-height: 3px">{{ $d->nama_jam_kerja}}</h3>
@@ -245,6 +248,65 @@
                                 </div>
                             </div>
                         </div>
+                        @elseif($d->status=="d")
+                        <div class="card mb-1" style="border: 1px solid rgb(135, 135, 207)">
+                            <div class="card-body">
+                                <div class="historicontent">
+                                    <div class="iconpresensi">
+                                        <ion-icon name="earth-outline" style="font-size: 48px;" class="text-primary"></ion-icon>
+                                        {{-- <img src="{{ url($path) }}" alt="" class="imaged w48 rounded"> --}}
+                                    </div>
+                                    <div class="datapresensi">
+                                        <h3 style="line-height: 3px">Dinas Luar - {{ $d->kode_cuti }}</h3>
+                                        <h4 style="margin: 0px !important">{{ date("d-m-Y",strtotime($d->tgl_presensi))}}</h4>
+                                        <span>{{ $d->keterangan }}</span>
+                                        <br>
+                                        <span style="color: blue"><ion-icon name="document-attach-outline"></ion-icon>Dokumen</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @elseif($d->status=="s")
+                        <div class="card mb-1" style="border: 1px solid rgb(135, 135, 207)">
+                            <div class="card-body">
+                                <div class="historicontent">
+                                    <div class="iconpresensi">
+                                        <ion-icon name="medkit-outline" style="font-size: 48px;" class="text-danger"></ion-icon>
+                                        {{-- <img src="{{ url($path) }}" alt="" class="imaged w48 rounded"> --}}
+                                    </div>
+                                    <div class="datapresensi">
+                                        <h3 style="line-height: 3px">Sakit - {{ $d->kode_cuti }}</h3>
+                                        <h4 style="margin: 0px !important">{{ date("d-m-Y",strtotime($d->tgl_presensi))}}</h4>
+                                        <span>{{ $d->keterangan }}</span>
+                                        <br>
+                                        <span style="color: blue"><ion-icon name="document-attach-outline"></ion-icon>Dokumen</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @elseif($d->status=="c")
+                        <div class="card mb-1" style="border: 1px solid rgb(135, 135, 207)">
+                            <div class="card-body">
+                                <div class="historicontent">
+                                    <div class="iconpresensi">
+                                        <ion-icon name="document-outline" style="font-size: 48px;" class="text-warning"></ion-icon>
+                                        {{-- <img src="{{ url($path) }}" alt="" class="imaged w48 rounded"> --}}
+                                    </div>
+                                    <div class="datapresensi">
+                                        <h3 style="line-height: 3px">Cuti - {{ $d->kode_cuti }}</h3>
+                                        <h4 style="margin: 0px !important">{{ date("d-m-Y",strtotime($d->tgl_presensi))}}</h4>
+                                        <span class="text-info">{{ $d->nama_cuti }}</span>
+                                        <br>
+                                        <span>{{ $d->keterangan }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @endif
+                        
                     @endforeach
                 </div>
                 <div class="tab-pane fade" id="profile" role="tabpanel">

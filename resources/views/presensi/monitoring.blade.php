@@ -58,8 +58,9 @@
                                                 <th>Foto</th>
                                                 <th>Jam Pulang</th>
                                                 <th>Foto</th>
+                                                <th>Status</th>
                                                 <th>Keterangan</th>
-                                                <th>Lokasi</th>
+                                                <th></th>
                                             </tr>
                                         </thead>
                                         <tbody id="loadpresensi"></tbody>

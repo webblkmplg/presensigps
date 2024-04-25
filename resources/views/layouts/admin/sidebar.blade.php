@@ -245,7 +245,7 @@
                             Data Master
                         </span>
                     </a>
-                    <div class="dropdown-menu {{ request()->is(['pegawai', 'departemen']) ? 'show' : '' }}">
+                    <div class="dropdown-menu {{ request()->is(['pegawai', 'departemen','cuti']) ? 'show' : '' }}">
                         <div class="dropdown-menu-columns">
                             <div class="dropdown-menu-column">
                                 <a class="dropdown-item {{ request()->is(['pegawai']) ? 'active' : '' }}"
@@ -255,6 +255,10 @@
                                 <a class="dropdown-item {{ request()->is(['departemen']) ? 'active' : '' }}"
                                     href="/departemen">
                                     Unit Kerja
+                                </a>
+                                <a class="dropdown-item {{ request()->is(['cuti']) ? 'active' : '' }}"
+                                    href="/cuti">
+                                    Cuti
                                 </a>
                             </div>
                         </div>

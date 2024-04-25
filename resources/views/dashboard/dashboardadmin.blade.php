@@ -9,7 +9,7 @@
                         Overview
                     </div>
                     <h2 class="page-title">
-                        Dashboard
+                        Rekap Presensi {{ date('d-m-Y', strtotime(date('Y-m-d')))}}
                     </h2>
                 </div>
             </div>
@@ -18,6 +18,7 @@
 
     <div class="page-body">
         <div class="container-xl">
+            
             <div class="row">
 
                 <div class="col-md-6 col-xl-3">
@@ -77,7 +78,7 @@
                                 </div>
                                 <div class="col">
                                     <div class="font-weight-medium">
-                                        {{ $rekapcuti->jmlcuti != null ? $rekapcuti->jmlcuti : 0 }}
+                                        {{ $rekappresensi->jmlcuti }}
                                     </div>
                                     <div class="text-muted">
                                         Pegawai Cuti
@@ -109,7 +110,7 @@
                                 </div>
                                 <div class="col">
                                     <div class="font-weight-medium">
-                                        {{ $rekapcuti->jmlsakit != null ? $rekapcuti->jmlsakit : 0 }}
+                                        {{ $rekappresensi->jmlsakit }}
                                     </div>
                                     <div class="text-muted">
                                         Pegawai Sakit
@@ -144,6 +145,29 @@
                                     </div>
                                     <div class="text-muted">
                                         Pegawai Terlambat
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <div class="card card-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-info text-white avatar">
+                                        <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
+                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trekking"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M7 21l2 -4" /><path d="M13 21v-4l-3 -3l1 -6l3 4l3 2" /><path d="M10 14l-1.827 -1.218a2 2 0 0 1 -.831 -2.15l.28 -1.117a2 2 0 0 1 1.939 -1.515h1.439l4 1l3 -2" /><path d="M17 12v9" /><path d="M16 20h2" /></svg>
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <div class="font-weight-medium">
+                                        {{ $rekappresensi->jmldl }}
+                                    </div>
+                                    <div class="text-muted">
+                                        Pegawai Dinas Luar
                                     </div>
                                 </div>
                             </div>

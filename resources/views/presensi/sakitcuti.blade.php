@@ -19,6 +19,21 @@
         <div class="container-xl">
             <div class="row">
                 <div class="col-12">
+                    @if (Session::get('success'))
+                        <div class="alert alert-success">
+                            {{ Session::get('success') }}
+                        </div>
+                    @endif
+
+                    @if (Session::get('warning'))
+                        <div class="alert alert-warning">
+                            {{ Session::get('warning') }}
+                        </div>
+                    @endif
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
                     <form action="/presensi/sakitcuti" method="GET" autocomplete="off">
                         <div class="row">
                             <div class="col-6">
@@ -147,7 +162,8 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Tanggal Cuti/Sakit</th>
+                                <th>Kode</th>
+                                <th>Tanggal Kegiatan</th>
                                 <th>NIP</th>
                                 <th>Nama Pegawai</th>
                                 <th>Jabatan</th>
@@ -161,7 +177,8 @@
                             @foreach ($sakitcuti as $d)
                                 <tr>
                                     <td>{{ $loop->iteration + $sakitcuti->firstitem() - 1 }}</td>
-                                    <td>{{ date('d-m-Y', strtotime($d->tgl_cuti)) }}</td>
+                                    <td>{{ $d->kode_cuti }}</td>
+                                    <td>{{ date('d-m-Y', strtotime($d->tgl_cuti_dari)) }} s/d {{ date('d-m-Y', strtotime($d->tgl_cuti_sampai)) }}</td>
                                     <td>{{ $d->nip }}</td>
                                     <td>{{ $d->nama_lengkap }}</td>
                                     <td>{{ $d->jabatan }}</td>
@@ -186,8 +203,8 @@
                                     </td>
                                     <td>
                                         @if ($d->status_approved == 0)
-                                            <a href="#" class="btn btn-sm btn-primary" id="approve"
-                                                id_sakitcuti="{{ $d->id }}"><svg
+                                            <a href="#" class="btn btn-sm btn-primary approve"
+                                                kode_cuti="{{ $d->kode_cuti }}"><svg
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     class="icon icon-tabler icon-tabler-external-link" width="24"
                                                     height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -201,7 +218,7 @@
                                                     <path d="M15 4h5v5"></path>
                                                 </svg>Validasi</a>
                                         @else
-                                            <a href="/presensi/{{ $d->id }}/batalkansakitcuti"
+                                            <a href="/presensi/{{ $d->kode_cuti }}/batalkansakitcuti"
                                                 class="btn btn-sm btn-danger"><svg xmlns="http://www.w3.org/2000/svg"
                                                     class="icon icon-tabler icon-tabler-circle-letter-x" width="24"
                                                     height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -235,7 +252,7 @@
                 <div class="modal-body">
                     <form action="/presensi/approvecuti" method="POST">
                         @csrf
-                        <input type="hidden" id="id_sakitcuti_form" name="id_sakitcuti_form">
+                        <input type="hidden" id="kode_cuti_form" name="kode_cuti_form">
                         <div class="row">
                             <div class="col-12">
                                 <div class="form-group">
@@ -276,10 +293,10 @@
 @push('myscript')
     <script>
         $(function() {
-            $("#approve").click(function(e) {
+            $(".approve").click(function(e) {
                 e.preventDefault();
-                var id_sakitcuti = $(this).attr("id_sakitcuti");
-                $("#id_sakitcuti_form").val(id_sakitcuti);
+                var kode_cuti = $(this).attr("kode_cuti");
+                $("#kode_cuti_form").val(kode_cuti);
                 $("#modal-sakitcuti").modal("show")
             });
 

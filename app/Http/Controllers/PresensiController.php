@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pengajuancuti;
+use App\Models\Pegawai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -131,7 +132,8 @@ class PresensiController extends Controller
                         'jam_in' => $jam,
                         'foto_in' => $fileName,
                         'lokasi_in' => $lokasi,
-                        'kode_jam_kerja' => $jamkerja->kode_jam_kerja
+                        'kode_jam_kerja' => $jamkerja->kode_jam_kerja,
+                        'status' => 'h'
                     ];
 
                     $simpan = DB::table('presensi')->insert($data);
@@ -220,20 +222,44 @@ class PresensiController extends Controller
         $nip = Auth::guard('pegawai')->user()->nip;
 
         $histori = DB::table('presensi')
+            ->select('presensi.*','keterangan', 'jam_kerja.*', 'doc_sid','nama_cuti')
+            ->leftJoin('jam_kerja','presensi.kode_jam_kerja','=','jam_kerja.kode_jam_kerja')
+            ->leftJoin('pengajuan_cuti','presensi.kode_cuti','=','pengajuan_cuti.kode_cuti')
+            ->leftJoin('master_cuti','pengajuan_cuti.kode_cutii','=','master_cuti.kode_cutii')
+            ->where('presensi.nip', $nip)
             ->whereRaw('MONTH(tgl_presensi)="' . $bulan . '"')
             ->whereRaw('YEAR(tgl_presensi)="' . $tahun . '"')
-            ->where('nip', $nip)
-            ->orderBy('tgl_presensi')
+            ->orderBy('tgl_presensi','desc')
             ->get();
 
         return view('presensi.gethistori', compact('histori'));
     }
 
-    public function cuti()
+    public function cuti(Request $request)
     {
         $nip = Auth::guard('pegawai')->user()->nip;
-        $datacuti = DB::table('pengajuan_cuti')->where('nip', $nip)->orderBy('tgl_cuti', 'desc')->get();
-        return view('presensi.cuti', compact('datacuti'));
+
+        if(!empty($request->bulan) && !empty($request->tahun))
+        {
+        $datacuti = DB::table('pengajuan_cuti')
+        ->leftJoin('master_cuti','pengajuan_cuti.kode_cutii','=', 'master_cuti.kode_cutii')
+        ->orderBy('tgl_cuti_dari', 'desc')
+        ->where('nip', $nip)
+        ->whereRaw('MONTH(tgl_cuti_dari)="'.$request->bulan.'"')
+        ->whereRaw('YEAR(tgl_cuti_dari)="'.$request->tahun.'"')
+        ->get();
+        } else {
+            $datacuti = DB::table('pengajuan_cuti')
+            ->leftJoin('master_cuti','pengajuan_cuti.kode_cutii','=', 'master_cuti.kode_cutii')
+            ->orderBy('tgl_cuti_dari', 'desc')
+            ->where('nip', $nip)->limit(5)
+            ->orderBy('tgl_cuti_dari', 'desc')
+            ->get();
+        }
+
+
+        $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        return view('presensi.cuti', compact('datacuti','namabulan'));
     }
 
     public function buatcuti()
@@ -274,7 +300,8 @@ class PresensiController extends Controller
     {
         $tanggal = $request->tanggal;
         $presensi = DB::table('presensi')
-            ->select('presensi.*', 'nama_lengkap', 'nama_dept')
+            ->select('presensi.*', 'nama_lengkap', 'nama_dept','keterangan')
+            ->leftjoin('pengajuan_cuti','presensi.kode_cuti','=','pengajuan_cuti.kode_cuti')
             ->join('pegawai', 'presensi.nip', '=', 'pegawai.nip')
             ->join('departemen', 'pegawai.kode_dept', '=', 'departemen.kode_dept')
             ->where('tgl_presensi', $tanggal)
@@ -311,7 +338,10 @@ class PresensiController extends Controller
             ->first();
 
         $presensi = DB::table('presensi')
-            ->where('nip', $nip)
+            ->select('presensi.*','keterangan','jam_kerja.*')
+            ->leftJoin('jam_kerja','presensi.kode_jam_kerja','=','jam_kerja.kode_jam_kerja')
+            ->leftJoin('pengajuan_cuti','presensi.kode_cuti','=','pengajuan_cuti.kode_cuti')
+            ->where('presensi.nip', $nip)
             ->whereRaw('MONTH(tgl_presensi)="' . $bulan . '"')
             ->whereRaw('YEAR(tgl_presensi)="' . $tahun . '"')
             ->orderBy('tgl_presensi')
@@ -338,47 +368,71 @@ class PresensiController extends Controller
     {
         $bulan = $request->bulan;
         $tahun = $request->tahun;
+        $dari = $tahun . "-" . $bulan . "-01";
+        $sampai = date("Y-m-t", strtotime($dari));
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        $rekap = DB::table('presensi')
-            ->selectRaw('presensi.nip,nama_lengkap,
-        MAX(IF(DAY(tgl_presensi) = 1,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_1,
-        MAX(IF(DAY(tgl_presensi) = 2,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_2,
-        MAX(IF(DAY(tgl_presensi) = 3,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_3,
-        MAX(IF(DAY(tgl_presensi) = 4,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_4,
-        MAX(IF(DAY(tgl_presensi) = 5,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_5,
-        MAX(IF(DAY(tgl_presensi) = 6,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_6,
-        MAX(IF(DAY(tgl_presensi) = 7,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_7,
-        MAX(IF(DAY(tgl_presensi) = 8,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_8,
-        MAX(IF(DAY(tgl_presensi) = 9,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_9,
-        MAX(IF(DAY(tgl_presensi) = 10,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_10,
-        MAX(IF(DAY(tgl_presensi) = 11,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_11,
-        MAX(IF(DAY(tgl_presensi) = 12,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_12,
-        MAX(IF(DAY(tgl_presensi) = 13,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_13,
-        MAX(IF(DAY(tgl_presensi) = 14,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_14,
-        MAX(IF(DAY(tgl_presensi) = 15,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_15,
-        MAX(IF(DAY(tgl_presensi) = 16,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_16,
-        MAX(IF(DAY(tgl_presensi) = 17,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_17,
-        MAX(IF(DAY(tgl_presensi) = 18,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_18,
-        MAX(IF(DAY(tgl_presensi) = 19,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_19,
-        MAX(IF(DAY(tgl_presensi) = 20,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_20,
-        MAX(IF(DAY(tgl_presensi) = 21,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_21,
-        MAX(IF(DAY(tgl_presensi) = 22,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_22,
-        MAX(IF(DAY(tgl_presensi) = 23,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_23,
-        MAX(IF(DAY(tgl_presensi) = 24,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_24,
-        MAX(IF(DAY(tgl_presensi) = 25,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_25,
-        MAX(IF(DAY(tgl_presensi) = 26,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_26,
-        MAX(IF(DAY(tgl_presensi) = 2,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_2,
-        MAX(IF(DAY(tgl_presensi) = 27,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_27,
-        MAX(IF(DAY(tgl_presensi) = 28,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_28,
-        MAX(IF(DAY(tgl_presensi) = 29,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_29,
-        MAX(IF(DAY(tgl_presensi) = 30,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_30,
-        MAX(IF(DAY(tgl_presensi) = 31,CONCAT(jam_in,"-", IFNULL(jam_out,"00:00:00")),"")) AS tgl_31')
-            ->join('pegawai', 'presensi.nip', '=', 'pegawai.nip')
-            ->whereRaw('MONTH(tgl_presensi)="' . $bulan . '"')
-            ->whereRaw('YEAR(tgl_presensi)="' . $tahun . '"')
-            ->groupByRaw('presensi.nip,nama_lengkap')
-            ->get();
+       
+        $select_date = "";
+        $field_date = "";
+        $i = 1;
+        while(strtotime($dari) <= strtotime($sampai)){
+            $rangetanggal[] = $dari;
 
+            $select_date .= "MAX(IF(tgl_presensi='$dari', CONCAT(
+                IFNULL(jam_in, 'NA'),'|',
+                IFNULL(jam_out, 'NA'),'|',
+                IFNULL(presensi.status, 'NA'),'|',
+                IFNULL(nama_jam_kerja, 'NA'),'|',
+                IFNULL(jam_masuk, 'NA'),'|',
+                IFNULL(jam_pulang, 'NA'),'|',
+                IFNULL(presensi.kode_cuti, 'NA'),'|',
+                IFNULL(keterangan, 'NA'),'|'
+                ),NULL)) AS tgl_" . $i.",";
+
+                $field_date .= "tgl_" . $i . ","; 
+                $i++;
+                $dari = date("Y-m-d", strtotime("+1 day", strtotime($dari)));
+       
+        }
+        // dd($select_date);
+
+        $jmlhari = count($rangetanggal);
+        $lastrange = $jmlhari - 1;
+        $sampai = $rangetanggal[$lastrange];
+        if ($jmlhari == 30) {
+            array_push($rangetanggal, NULL);
+        }else if($jmlhari == 29) {
+            array_push($rangetanggal, NULL, NULL);
+        }else if($jmlhari == 28) {
+            array_push($rangetanggal, NULL, NULL, NULL);
+        }
+        
+        $query = Pegawai::query();
+        $query->selectRaw("$field_date pegawai.nip, nama_lengkap, jabatan"
+    );
+        
+        $query->leftJoin(
+            DB::raw("(
+                SELECT 
+                $select_date
+                presensi.nip
+                FROM presensi
+                    LEFT JOIN jam_kerja ON presensi.kode_jam_kerja = jam_kerja.kode_jam_kerja
+                    LEFT JOIN pengajuan_cuti ON presensi.kode_cuti = pengajuan_cuti.kode_cuti
+                    WHERE tgl_presensi BETWEEN '$rangetanggal[0]' AND '$sampai'
+                    GROUP BY nip
+
+            ) presensi"),
+            function($join){
+                $join->on('pegawai.nip','=','presensi.nip');
+            }
+        );
+
+        $query->orderBy('nama_lengkap');
+        $rekap = $query->get();
+
+        // dd($rekap);
+    
         if (isset($_POST['exportexcel'])) {
         $time = date("d-M-Y H:i:s");
 
@@ -386,16 +440,16 @@ class PresensiController extends Controller
         header("Content-Disposition: attachment; filename=Rekap Presensi Pegawai $time.xls");
         }
 
-        return view('presensi.cetakrekap', compact('bulan', 'tahun', 'namabulan', 'rekap'));
+        return view('presensi.cetakrekap', compact('bulan', 'tahun', 'namabulan', 'rekap','rangetanggal','jmlhari'));
     }
 
     public function sakitcuti(Request $request)
     {
         $query = Pengajuancuti::query();
-        $query->select('id', 'tgl_cuti', 'pengajuan_cuti.nip', 'nama_lengkap', 'jabatan', 'status', 'status_approved', 'keterangan');
+        $query->select('kode_cuti', 'tgl_cuti_dari', 'tgl_cuti_sampai', 'pengajuan_cuti.nip', 'nama_lengkap', 'jabatan', 'status', 'status_approved', 'keterangan');
         $query->join('pegawai', 'pengajuan_cuti.nip', '=', 'pegawai.nip');
         if (!empty($request->dari) && !empty($request->sampai)) {
-            $query->whereBetween('tgl_cuti', [$request->dari, $request->sampai]);
+            $query->whereBetween('tgl_cuti_dari', [$request->dari, $request->sampai]);
         }
         if (!empty($request->nip)) {
             $query->where('pengajuan_cuti.nip', $request->nip);
@@ -407,7 +461,7 @@ class PresensiController extends Controller
         if ($request->status_approved === '0' || $request->status_approved === '1' || $request->status_approved === '2') {
             $query->where('status_approved', $request->status_approved);
         }
-        $query->orderBy('tgl_cuti', 'desc');
+        $query->orderBy('tgl_cuti_dari', 'desc');
         $sakitcuti = $query->paginate(10);
         $sakitcuti->appends($request->all());
         return view('presensi.sakitcuti', compact('sakitcuti'));
@@ -416,27 +470,56 @@ class PresensiController extends Controller
     public function approvecuti(Request $request)
     {
         $status_approved = $request->status_approved;
-        $id_sakitcuti_form = $request->id_sakitcuti_form;
-        $update = DB::table('pengajuan_cuti')->where('id', $id_sakitcuti_form)->update([
-            'status_approved' => $status_approved
-        ]);
-        if ($update) {
-            return Redirect::back()->with(['success' => 'Data Berhasil di Update']);
-        } else {
-            return Redirect::back()->with(['warning' => 'Data Gagal di Update']);
+        $kode_cuti = $request->kode_cuti_form;
+        $datacuti = DB::table('pengajuan_cuti')->where('kode_cuti',$kode_cuti)->first();
+        $nip = $datacuti->nip;
+        $tgl_dari = $datacuti->tgl_cuti_dari;
+        $tgl_sampai = $datacuti->tgl_cuti_sampai;
+        $status = $datacuti->status;
+        DB::beginTransaction();
+
+        try {
+            if($status_approved == 1)
+            {
+                while(strtotime($tgl_dari)<= strtotime($tgl_sampai))
+                {
+                    DB::table('presensi')->insert([
+                        'nip' => $nip,
+                        'tgl_presensi' => $tgl_dari,
+                        'status' => $status,
+                        'kode_cuti' => $kode_cuti
+                    ]);
+                    $tgl_dari = date("Y-m-d",strtotime("+1 days", strtotime($tgl_dari)));
+                }
+            }
+        
+            DB::table('pengajuan_cuti')->where('kode_cuti', $kode_cuti)->update(['status_approved' => $status_approved]);
+           
+            DB::commit();
+           
+            return Redirect::back()->with(['success'=>'Data Berhasil Diproses']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // dd($e);
+            return Redirect::back()->with(['warning'=>'Data Gagal Diproses']);
         }
     }
 
-    public function batalkansakitcuti($id)
+    public function batalkansakitcuti($kode_cuti)
     {
-        $update = DB::table('pengajuan_cuti')->where('id', $id)->update([
-            'status_approved' => 0
-        ]);
-        if ($update) {
-            return Redirect::back()->with(['success' => 'Data Berhasil di Update']);
-        } else {
-            return Redirect::back()->with(['warning' => 'Data Gagal di Update']);
+        DB::beginTransaction();
+        try {
+            $update = DB::table('pengajuan_cuti')->where('kode_cuti', $kode_cuti)->update([
+                'status_approved' => 0
+            ]);
+            DB::table('presensi')->where('kode_cuti',$kode_cuti)->delete();
+            DB::commit();
+            return Redirect::back()->with(['success' => 'Data Berhasil di Batalkan']);
+        } catch (\Exception $e) {
+            return Redirect::back()->with(['warning' => 'Data Gagal di Batalkan']);
         }
+        
     }
 
     public function cekpengajuancuti(Request $request)
@@ -446,5 +529,29 @@ class PresensiController extends Controller
 
         $cek = DB::table('pengajuan_cuti')->where('nip', $nip)->where('tgl_cuti', $tgl_cuti)->count();
         return $cek;
+    }
+
+    public function showact($kode_cuti)
+    {
+        $datacuti = DB::table('pengajuan_cuti')->where('kode_cuti',$kode_cuti)->first();
+        return view('presensi.showact', compact('datacuti'));
+    }
+
+    public function deletecuti($kode_cuti)
+    {
+        $cekdatacuti = DB::table('pengajuan_cuti')->where('kode_cuti',$kode_cuti)->first();
+        $doc_sid = $cekdatacuti->doc_sid;
+
+        try {
+            DB::table('pengajuan_cuti')->where('kode_cuti',$kode_cuti)->delete();
+            // dd($doc_sid);
+            if ($doc_sid != null)
+            {
+                Storage::delete('/public/uploads/sid/' . $doc_sid);
+            }
+            return Redirect('presensi/cuti')->with(['success' => 'Data Berhasil di Hapus']);
+        } catch (\Exception $e) {
+            return Redirect('presensi/cuti')->with(['error' => 'Data Gagal di Hapus']);
+        }
     }
 }

@@ -15,7 +15,7 @@
     <!-- Set also "landscape" if you need -->
     <style>
         @page {
-            size: A4
+            size: A4;
         }
 
         #title {
@@ -55,6 +55,12 @@
             width: 40px;
             height: 30px;
         }
+
+        body.A4.landscape .sheet {
+            width: 297mm !important;
+            height: auto !important;
+        }
+        
     </style>
 </head>
 
@@ -91,65 +97,85 @@
                 <td>
                     <span id="title">
                         Laporan Presensi Pegawai Periode {{ $namabulan[$bulan] }} {{ $tahun }} <br>
-                        BTKLPP Kelas I Palembang
+                        Balai Laboratorium Kesehatan Masyarakat Palembang
                     </span><br>
                     <span><i>Jl. SMB II No. 55, KM. 11 Alang-alang Lebar, Palembang 30154</i></span>
                 </td>
             </tr>
         </table>
-
         <table class="tabelpresensi">
             <tr>
                 <th rowspan="2">NIP</th>
                 <th rowspan="2">Nama Pegawai</th>
-                <th colspan="31">Tanggal</th>
-                <th rowspan="2">TH</th>
-                <th rowspan="2">TT</th>
+                <th colspan="{{ $jmlhari }}">Bulan {{ $namabulan[$bulan] }} {{ $tahun }}</th>
+                <th rowspan="2">H</th>
+                <th rowspan="2">DL</th>
+                <th rowspan="2">C</th>
+                <th rowspan="2">S</th>
+                <th rowspan="2">A</th>
             </tr>
             <tr>
-                <?php
-                    for($i=1; $i<=31; $i++){
-                ?>
-                <th>{{ $i }}</th>
-                <?php
-                    }
-                ?>
+                @foreach ($rangetanggal as $d)
+                @if ($d != NULL)
+                <th>{{ date("d",strtotime($d)) }}</th>
+                @endif                     
+                @endforeach
             </tr>
-            @foreach ($rekap as $d)
+            @foreach ($rekap as $r)
                 <tr>
-                    <td>{{ $d->nip }}</td>
-                    <td>{{ $d->nama_lengkap }}</td>
+                    <td>{{ $r->nip }}</td>
+                    <td>{{ $r->nama_lengkap }}</td>
+            
+                        <?php
+                            $jml_hadir = 0;
+                            $jml_dl = 0;
+                            $jml_cuti = 0;
+                            $jml_sakit = 0;
+                            $jml_alpa = 0;
+                            $color = 0;
+                            for($i=1; $i<=$jmlhari;$i++){
+                                $tgl = "tgl_".$i;
+                                $datapresensi = explode("|",$r->$tgl); 
+                                if ($r->$tgl != NULL) {
+                                    $status = $datapresensi[2]; 
+                                } else {
+                                    $status = "";
+                                }
+                                
+                                if($status == "h"){
+                                    $jml_hadir += 1;
+                                    $color = "white";
+                                }
 
-                    <?php
-                    $totalhadir = 0;
-                    $totalterlambat = 0;
-                    for($i=1; $i<=31; $i++){
-                        $tgl = "tgl_".$i;
-                        if(empty($d->$tgl)){
-                            $hadir = ['',''];
-                            $totalhadir += 0;
-                        }else{
-                            $hadir = explode("-",$d->$tgl);
-                            $totalhadir += 1;
-                            if($hadir[0] > "07:30:00"){
-                                $totalterlambat += 1;
-                            }
-                        }
+                                if($status == "d"){
+                                    $jml_dl += 1;
+                                    $color = "#34a1eb";
+                                }
 
-                    ?>
-                    <td>
-                        <span style="color:{{ $hadir[0] > '07:30:00' ? 'red' : '' }}">{{ $hadir[0] }}</span>
-                        <br>
-                        <span style="color:{{ $hadir[1] == '00:00:00' ? 'red' : '' }}">{{ $hadir[1] }}</span>
-                    </td>
+                                if($status == "c"){
+                                    $jml_cuti += 1;
+                                    $color = "#a600ff";
+                                }
 
-                    <?php
-                    }
-                ?>
-                    <td>{{ $totalhadir }}</td>
-                    <td>{{ $totalterlambat }}</td>
+                                if($status == "s"){
+                                    $jml_sakit += 1;
+                                    $color = "#ffbb00";
+                                }
+
+                                if(empty($status)){
+                                    $jml_alpa += 1;
+                                    $color = "red";
+                                }
+                        ?>
+                <td style="background-color: {{ $color }}"> {{ $status }} </td>
+                <?php } ?> 
+                <td>{{ !empty($jml_hadir) ? $jml_hadir : "" }}</td>  
+                <td>{{ !empty($jml_dl) ? $jml_dl : "" }}</td> 
+                <td>{{ !empty($jml_cuti) ? $jml_cuti : "" }}</td>  
+                <td>{{ !empty($jml_sakit) ? $jml_sakit : "" }}</td>  
+                <td>{{ !empty($jml_alpa) ? $jml_alpa : "" }}</td> 
                 </tr>
-            @endforeach
+            @endforeach  
         </table>
 
 
@@ -160,7 +186,7 @@
                     Ka. Subbag Administrasi Umum, </td>
             </tr>
             <tr>
-                <td width="75%""></td>
+                <td width="75%"></td>
                 <td style="text-align: left; vertical-align:bottom;" height: "300px">
                     <br>
                     <br><br><br>
