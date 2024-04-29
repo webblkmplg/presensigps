@@ -31,7 +31,7 @@
 
         <div class="login-form mt-5">
             <div class="section">
-                <img src="{{ asset('assets/img/login/icon2.PNG') }}" alt="image" class="form-image" style="width:240px !important;height:68px !important;">
+                <img src="{{ asset('assets/img/login/icon2.png') }}" alt="image" class="form-image" style="width:240px !important;height:68px !important;">
             </div>
             <div class="section mt-1">
                 <h1>Sistem Informasi Kehadiran Pegawai</h1>
