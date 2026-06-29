@@ -177,6 +177,133 @@
 
             </div>
         </div>
+        
+        <!-- UPDATE 24 juni 2026 -->
+        <div class="row mt-5 mb-5 px-md-3"> 
+                <div class="col-12">
+                    <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;"> 
+                        <div class="card-header" style="background-color: #f8f9fa; border-bottom: 1px solid #edf2f6;">
+                            <h3 class="card-title" style="font-weight: 600;">
+                                Akumulasi Keterlambatan Pegawai - Bulan {{ $namabulan[$bulanini] }} {{ $tahunini }}
+                            </h3>
+                        </div>
+                        <div class="table-responsive">
+                            <style>
+                                th.sortable {
+                                    cursor: pointer;
+                                    user-select: none;
+                                    transition: background-color 0.2s ease;
+                                }
+                                th.sortable:hover {
+                                    background-color: #e6eef7 !important;
+                                    color: #206bc4;
+                                }
+                                th.sortable i {
+                                    font-size: 0.8rem;
+                                    margin-left: 5px;
+                                    opacity: 0.4;
+                                }
+                            </style>
+                            <table class="table table-vcenter card-table table-striped table-hover" id="table-keterlambatan">
+                                <thead>
+                                    <tr>
+                                        <th class="w-1 sortable text-center">No <i class="fa fa-sort"></i></th>
+                                        <th class="sortable">NIP <i class="fa fa-sort"></i></th>
+                                        <th class="sortable">Nama Pegawai <i class="fa fa-sort"></i></th>
+                                        <th class="sortable">Total Waktu Keterlambatan <i class="fa fa-sort"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if(count($leaderboard_keterlambatan) > 0)
+                                        @foreach($leaderboard_keterlambatan as $index => $peg)
+                                            @php
+                                                $jam = floor($peg['total_menit'] / 60);
+                                                $menit = $peg['total_menit'] % 60;
+                                                
+                                                $teks_waktu = '';
+                                                if($jam > 0) {
+                                                    $teks_waktu .= $jam . ' Jam ';
+                                                }
+                                                if($menit > 0) {
+                                                    $teks_waktu .= $menit . ' Menit';
+                                                }
+                                            @endphp
+                                            <tr>
+                                                <td class="text-center" data-sort="{{ $index + 1 }}">{{ $index + 1 }}</td>
+                                                <td class="text-muted" data-sort="{{ $peg['nip'] }}">{{ $peg['nip'] }}</td>
+                                                <td class="font-weight-medium" data-sort="{{ $peg['nama_lengkap'] }}">{{ $peg['nama_lengkap'] }}</td>
+                                                <td data-sort="{{ $peg['total_menit'] }}">
+                                                    @if($peg['total_menit'] > 0)
+                                                        <span class="text-danger font-weight-bold">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
+                                                                <path d="M12 7v5l3 3"></path>
+                                                            </svg>
+                                                            {{ $teks_waktu }}
+                                                        </span>
+                                                    @else
+                                                        <span class="badge bg-success text-white" style="padding: 6px 10px; font-weight: 500;">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px;">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                                <path d="M5 12l5 5l10 -10"></path>
+                                                            </svg>
+                                                            Tepat Waktu
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div> </div>
+        <!-- END of UPDATE 24 Juni 2026 -->
 
     </div>
 @endsection
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const table = document.getElementById('table-keterlambatan');
+            const headers = table.querySelectorAll('th.sortable');
+            const tbody = table.querySelector('tbody');
+
+            headers.forEach((header, index) => {
+                header.addEventListener('click', () => {
+                    // Ambil semua baris data di dalam tbody
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    
+                    // Cek arah sorting saat ini (ascending atau descending)
+                    const isAscending = header.classList.contains('asc');
+                    const direction = isAscending ? -1 : 1;
+
+                    rows.sort((a, b) => {
+                        // Ambil nilai dari atribut data-sort yang sudah kita siapkan
+                        const aColText = a.querySelectorAll('td')[index].getAttribute('data-sort');
+                        const bColText = b.querySelectorAll('td')[index].getAttribute('data-sort');
+
+                        // Konversi ke angka jika memungkinkan, jika tidak jadikan huruf kecil untuk sorting alfabet
+                        const aColValue = isNaN(aColText) ? aColText.toLowerCase() : parseFloat(aColText);
+                        const bColValue = isNaN(bColText) ? bColText.toLowerCase() : parseFloat(bColText);
+
+                        if (aColValue > bColValue) return 1 * direction;
+                        if (aColValue < bColValue) return -1 * direction;
+                        return 0;
+                    });
+
+                    // Bersihkan class asc/desc dari semua header
+                    headers.forEach(h => h.classList.remove('asc', 'desc'));
+
+                    // Tambahkan class asc/desc ke header yang baru saja diklik
+                    header.classList.add(isAscending ? 'desc' : 'asc');
+
+                    // Masukkan kembali baris yang sudah diurutkan ke dalam tabel
+                    rows.forEach(row => tbody.appendChild(row));
+                });
+            });
+        });
+    </script>

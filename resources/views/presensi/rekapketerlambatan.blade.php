@@ -19,7 +19,7 @@
             <div class="col-12">
                 <div class="card shadow-sm border-0" style="border-radius: 12px;">
                     <div class="card-body">
-                        <form action="/admin/rekap-keterlambatan" method="GET">
+                        <form action="/presensi/rekap-keterlambatan" method="GET">
                             <div class="row">
                                 <div class="col-md-5">
                                     <div class="form-group">

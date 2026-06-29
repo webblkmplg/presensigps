@@ -173,6 +173,43 @@
                 </div>
             </div>
         </div>
+        <!-- update 24 Juni 2026 -->
+        <div class="row mt-1">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center" style="padding: 12px !important; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <ion-icon name="timer-outline" style="font-size: 1.8rem;" class="text-danger"></ion-icon>
+                            <span style="font-size: 0.9rem; font-weight: 600;">Total Keterlambatan Bulan Ini</span>
+                        </div>
+                        <div>
+                            <span class="badge bg-danger" style="font-size: 0.8rem; padding: 6px 10px;">{{ $total_keterlambatan }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- end of update 24 Juni 2026 -->
+
+             <!-- update 29 Juni 2026 -->
+        <div class="row mt-1">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center" style="padding: 12px !important; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <ion-icon name="calendar-outline" style="font-size: 1.8rem;" class="text-warning"></ion-icon>
+                            <span style="font-size: 0.9rem; font-weight: 600;">Total Keterlambatan Tahun {{ $tahunini }}</span>
+                        </div>
+                        <div>
+                            <span class="badge bg-warning" style="font-size: 0.8rem; padding: 6px 10px;">{{ $total_keterlambatan_tahun }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- update 29 Juni 2026 -->
+        
         <div class="presencetab mt-2">
             <div class="tab-pane fade show active" id="pilled" role="tabpanel">
                 <ul class="nav nav-tabs style1" role="tablist">
@@ -257,7 +294,7 @@
                                         {{-- <img src="{{ url($path) }}" alt="" class="imaged w48 rounded"> --}}
                                     </div>
                                     <div class="datapresensi">
-                                        <h3 style="line-height: 3px">Dinas Luar - {{ $d->kode_cuti }}</h3>
+                                        <h3 style="line-height: 3px">Dinas Luar</h3>
                                         <h4 style="margin: 0px !important">{{ date("d-m-Y",strtotime($d->tgl_presensi))}}</h4>
                                         <span>{{ $d->keterangan }}</span>
                                         <br>
@@ -276,7 +313,7 @@
                                         {{-- <img src="{{ url($path) }}" alt="" class="imaged w48 rounded"> --}}
                                     </div>
                                     <div class="datapresensi">
-                                        <h3 style="line-height: 3px">Sakit - {{ $d->kode_cuti }}</h3>
+                                        <h3 style="line-height: 3px">Sakit</h3>
                                         <h4 style="margin: 0px !important">{{ date("d-m-Y",strtotime($d->tgl_presensi))}}</h4>
                                         <span>{{ $d->keterangan }}</span>
                                         <br>
@@ -295,7 +332,7 @@
                                         {{-- <img src="{{ url($path) }}" alt="" class="imaged w48 rounded"> --}}
                                     </div>
                                     <div class="datapresensi">
-                                        <h3 style="line-height: 3px">Cuti - {{ $d->kode_cuti }}</h3>
+                                        <h3 style="line-height: 3px">Cuti</h3>
                                         <h4 style="margin: 0px !important">{{ date("d-m-Y",strtotime($d->tgl_presensi))}}</h4>
                                         <span class="text-info">{{ $d->nama_cuti }}</span>
                                         <br>

@@ -6,6 +6,7 @@ use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\KonfigurasiController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\PresensiController;
+use App\Http\Controllers\RekapketerlambatanController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -109,6 +110,7 @@ Route::middleware(['auth:user'])->group(function () {
     Route::get('/presensi/sakitcuti', [PresensiController::class, 'sakitcuti']);
     Route::post('/presensi/approvecuti', [PresensiController::class, 'approvecuti']);
     Route::get('/presensi/{kode_cuti}/batalkansakitcuti', [PresensiController::class, 'batalkansakitcuti']);
+    Route::get('/presensi/rekap-keterlambatan', [RekapketerlambatanController::class, 'index']);
 
     //konfigurasi
     Route::get('/konfigurasi/lokasikantor', [KonfigurasiController::class, 'lokasikantor']);
